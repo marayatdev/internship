@@ -1,33 +1,56 @@
-.heard{
-    display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%; /* ปรับขนาดตามที่คุณต้องการ */
+
+body{
+  background-color: rgb(39, 39, 39);
+  font-size: 16px;
+  font-family: sans-serif;
 }
-  .logo img{
-    width: 100px;
-    height: 100px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+.bg{
+  width: 65%;
+  background-color: rgb(255, 255, 255);
+  margin: 0 auto;
+}
+.wrap {
+  width: 22cm; 
+  height: 25.7cm; 
+  background-color: rgb(255, 255, 255);
+  margin: 0 auto;
+}
 
-  .title-left{
-    float: left;
-    text-align: center;
-  }
-  .title-right{
-    text-align: center;
-    float: right;
-  }
-  .date{
-    text-align: center;
-    clear: both;
-  }
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-
-.detail{
-    display: flex;
-    width: 100%;
-    justify-content: center;
+.logo img {
+  width: 100px;
+  height: 100px;
+}
+.head {
+  display: flex;
+  justify-content: space-between;
+}
+.date{
+  text-align: center;
+}
+.tank{
+  padding-left: 350px;
+  text-align: center;
+}
+.form{
+  width: 50%;
+  height: 150px;
+  background-color: white;
+  border-radius: 5px;
+  margin: auto;
+  text-align: center;
+}
+.hello{
+  padding-top: 25px;
+}
+.hello input{
+  width: 200px;
+  height: 20px;
+  border: 1px solid #b4b2b2;
+  border-radius: 3px;
 }

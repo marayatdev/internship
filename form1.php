@@ -63,18 +63,12 @@ if (isset($_POST['submit'])) {
    $insert_form = $conn->prepare("INSERT INTO `form`(username,prefix,name,branch,tel, year, s_intern,e_intern,f_amount,f_name,request,n_company,mentor,department,c_tel, address, position,style,residence,myDate) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
   $insert_form->execute([$username,$prefix, $name, $branch, $tel, $year, $s_intern, $e_intern,$f_amount, $f_name,$request,$n_company, $mentor, $department, $c_tel, $address, $position, $style, $residence,$mysqlDate]);
 
-
-
-
     if (empty($status)) {
       $status = "pending";
       $update_user = $conn->prepare("UPDATE `users` SET status = ? WHERE username = ?");
       $update_user->execute([$status, $username]);      
   }
-
-
-
-
+echo '<script>alert("บันทึกข้อมูลสำเร็จ"); window.location.href = "index.php";</script>';
 
 
 }
@@ -257,7 +251,7 @@ if (isset($_POST['submit'])) {
           </div>
           </div>
 
-    <a href=""><button type="submit" name="submit">Submit</button></a>
+    <a href="index.php"><button type="submit" name="submit">Submit</button></a>
       </form>
     
      

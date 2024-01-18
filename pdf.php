@@ -117,7 +117,7 @@ ob_start();
             </div>
 
         <div class="left">
-        <p>ที่ </p>
+        <p>ที่ อว 8619(พบ)/398</p>
     </div>
 
     <div class="right">

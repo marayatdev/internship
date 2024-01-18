@@ -11,24 +11,62 @@ if(isset($_SESSION['username'])){
 };
 
 if(isset($_POST['submit'])){
+    $username = $_POST['username'];
+    $username = filter_var($username, FILTER_SANITIZE_STRING);
+    $email = $_POST['email'];
+    $email = filter_var($email, FILTER_SANITIZE_STRING);
+    $pass = sha1($_POST['pass']);
+    $pass = filter_var($pass, FILTER_SANITIZE_STRING);
+    $cpass = sha1($_POST['cpass']);
+    $cpass = filter_var($cpass, FILTER_SANITIZE_STRING);
 
-   $username = $_POST['username'];
-   $username = filter_var($username, FILTER_SANITIZE_STRING);
-   $pass = sha1($_POST['pass']);
-   $pass = filter_var($pass, FILTER_SANITIZE_STRING);
+    // Check if the username already exists
+    $select_username = $conn->prepare("SELECT * FROM `users` WHERE username = ?");
+    $select_username->execute([$username]);
 
-   $select_user = $conn->prepare("SELECT * FROM `users` WHERE username = ? AND password = ?");
-   $select_user->execute([$username, $pass]);
-   $row = $select_user->fetch(PDO::FETCH_ASSOC);
+    if($select_username->rowCount() > 0){
+        echo "<script>alert('รหัสนักศึกษานี้ถูกใช้แล้ว!!!');</script>";
+    }else{
+        // Check if the email already exists
+        $select_user = $conn->prepare("SELECT * FROM `users` WHERE username = ?");
+        $select_user->execute([$username]);
 
-   if($select_user->rowCount() > 0){
-      $_SESSION['username'] = $row['username'];
-      header('location:index.php');
-   }else{
-      $message[] = 'incorrect username or password!';
-   }
-
+        if($select_user->rowCount() > 0){
+            echo "<script>alert('มีผู้ใช้อีเมลนี้แล้ว โปรดใส่ใหม่นะ!!!');</script>";
+        }else{
+            if($pass != $cpass){
+                echo "<script>alert('รหัสผ่านไม่ตรงกัน!!!');</script>";
+            }else{
+                // Insert new user into the database
+                $insert_user = $conn->prepare("INSERT INTO `users` (username, email, password) VALUES (?, ?, ?)");
+                $insert_user->execute([$username, $email, $cpass]);
+                echo "<script>alert('สมัคสมาชิคสำเร็จ');</script>";
+            }
+        }
+    }
 }
+
+
+ 
+ if(isset($_POST['submitL'])){
+
+    $username = $_POST['username'];
+    $username = filter_var($username, FILTER_SANITIZE_STRING);
+    $pass = sha1($_POST['pass']);
+    $pass = filter_var($pass, FILTER_SANITIZE_STRING);
+ 
+    $select_user = $conn->prepare("SELECT * FROM `users` WHERE username = ? AND password = ?");
+    $select_user->execute([$username, $pass]);
+    $row = $select_user->fetch(PDO::FETCH_ASSOC);
+ 
+    if($select_user->rowCount() > 0){
+       $_SESSION['username'] = $row['username'];
+       header('location:index.php');
+    }else{
+       echo "<script>alert('username หรือ password ไม่ถูกต้องกรุณากรอกใหม่ !!!');</script>";
+    }
+ 
+ }
 
 ?>
 
@@ -41,52 +79,144 @@ if(isset($_POST['submit'])){
    <meta http-equiv="X-UA-Compatible" content="IE=edge">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <title>login</title>
-   <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.0/flowbite.min.css"  rel="stylesheet" />
-   <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
-   <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/login.css">
 </head>
 <body>
 
 
-<section class="bg-white-50 dark:bg-white-900">
-  <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
-      <a href="index.php" class="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-gray">
-          <img class="w-8 h-8 mr-2" src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/logo.svg" alt="logo">
-          InternShip     
-      </a>
-      <div class="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
-          <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
-              <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
-                  Sign in to your account
-              </h1>
-              <form class="space-y-4 md:space-y-6" action="" method="post">
-                  <div>
-                      <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your email</label>
-                      <input type="text" name="username" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="name@company.com" required="">
-                  </div>
-                  <div>
-                      <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
-                      <input type="password" name="pass" id="password" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required="">
-                  </div>
-                  <div class="flex items-center justify-between">
-                      <div class="flex items-start">
-                          <div class="flex items-center h-5">
-                            <input id="remember" aria-describedby="remember" type="checkbox" class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800">
-                          </div>
-                          <div class="ml-3 text-sm">
-                            <label for="remember" class="text-gray-500 dark:text-gray-300">Remember me</label>
-                          </div>
-                      </div>
-                  </div>
-                  <button type="submit" value="login now"  name="submit" class="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">Sign in</button>
-                  <p class="text-sm font-light text-gray-500 dark:text-gray-400">
-                      Don’t have an account yet? <a href="user_register.php" class="font-medium text-primary-700 hover:underline dark:text-primary-500">Sign up</a>
-                  </p>
-              </form>
+<main>
+      <div class="box">
+        <div class="inner-box">
+          <div class="forms-wrap">
+             <form action="" autocomplete="off" class="sign-in-form"  method="post"> <!-- autocomplete="off" -->
+              <div class="logo">
+                <img src="./img/su-pre.png" alt="easyclass" />
+                <h4>InternShip</h4>
+              </div>
+
+              <div class="heading">
+                <h2>Welcome Back</h2>
+                <h6>Not registred yet?</h6>
+                <a href="#" class="toggle">Sign up</a>
+              </div>
+
+              <div class="actual-form">
+                <div class="input-wrap">
+                  <input
+                    type="text"
+                    minlength="4"
+                    class="input-field"
+                    name="username"
+                    required
+                  />
+                  <label>Name</label>
+                </div>
+
+                <div class="input-wrap">
+                  <input
+                    type="password"
+                    class="input-field"
+                    name="pass"
+                    required
+                  />
+                  <label>Password</label>
+                </div>
+
+                <input type="submit" value="Sign In" class="sign-btn" name="submitL"/>
+
+            
+              </div>
+            </form>
+
+            <form action="" autocomplete="off" class="sign-up-form" method="post" enctype="multipart/form-data">
+              <div class="logo">
+                <img src="./img/su-pre.png" alt="easyclass" />
+                <h4>InternShip</h4>
+              </div>
+
+              <div class="heading">
+                <h2>Get Started</h2>
+                <h6>Already have an account?</h6>
+                <a href="#" class="toggle">Sign in</a>
+              </div>
+
+              <div class="actual-form">
+                <div class="input-wrap">
+                <input
+  type="text"
+  minlength="9"
+  class="input-field"
+  name="username"
+  id="numericInput"
+  pattern="[0-9]*"
+  title="กรุณากรอกเฉพาะตัวเลข"
+  required
+/>
+                  <label>StudentID</label>
+                </div>
+
+                <div class="input-wrap">
+                  <input
+                    type="email"
+                    class="input-field"
+                    name="email"
+                    required
+                  />
+                  <label>Email</label>
+                </div>
+
+                <div class="input-wrap">
+                  <input
+                    type="password"
+                    minlength="4"
+                    class="input-field"
+                    name="pass"
+                    required
+                  />
+                  <label>Password</label>
+                </div>
+                <div class="input-wrap">
+                  <input
+                    type="password"
+                    minlength="4"
+                    class="input-field"
+                    name="cpass"
+                    required
+                  />
+                  <label>confirm-password</label>
+                </div>
+
+                <input type="submit" value="Sign Up" class="sign-btn" name="submit"/>
+              </div>
+            </form>
           </div>
+
+          <div class="carousel">
+            <div class="images-wrapper">
+              <img src="./img/image1.png" class="image img-1 show" alt="" />
+              <img src="./img/image2.png" class="image img-2" alt="" />
+              <img src="./img/image3.png" class="image img-3" alt="" />
+            </div>
+
+            <div class="text-slider">
+              <div class="text-wrap">
+                <div class="text-group">
+                  <h2>Create your own courses</h2>
+                  <h2>Customize as you like</h2>
+                  <h2>Invite students to your class</h2>
+                </div>
+              </div>
+
+              <div class="bullets">
+                <span class="active" data-value="1"></span>
+                <span data-value="2"></span>
+                <span data-value="3"></span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-  </div>
-</section>
+    </main>
 
    
 
@@ -104,20 +234,18 @@ if(isset($_POST['submit'])){
 
 
 
+<script src="js/app.js"></script>
+<script>
+  document.getElementById('numericInput').addEventListener('input', function() {
+    var numericInput = this.value;
+    var isValid = /^\d+$/.test(numericInput);
 
-
-
-
-
-
-
-
-
-
-
-
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.0/flowbite.min.js"></script>
-
+    if (!isValid) {
+      document.getElementById('errorNumericInput').textContent = 'กรุณากรอกเฉพาะตัวเลข';
+    } else {
+      document.getElementById('errorNumericInput').textContent = '';
+    }
+  });
+</script>
 </body>
 </html>
